@@ -1,5 +1,11 @@
+<script setup>
+
+</script>
 <template>
   <div>
-    <NuxtWelcome />
+    <checkers-board />
+    <checkers-stats />
+    <player-actions />
+    <player-change />
   </div>
 </template>
