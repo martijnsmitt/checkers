@@ -1,11 +1,14 @@
 <script setup>
 const { board, boardLayout, playerA, playerB, sync, turns } = useDatabase()
 
+const feedback = ref(null)
+
 const whosTurn = computed(() => turns.value % 2 ? playerB.id : playerA.id)
 
 const finishTurn = () => {
   // @TO-DO: check if new location should give a double stone
   turns.value++
+  feedback.value = null
   sync()
 }
 
@@ -161,8 +164,8 @@ const select = (key) => {
 
   // Select a stone
   if (typeof selectedStone.value !== 'number'){
-    if (!board.value[key].player) return console.warn('select a stone first')
-    if (whosTurn.value !== board.value[key].player) return console.warn(`It's not your turn!`)
+    if (!board.value[key].player) return feedback.value = 'first select a stone'
+    if (whosTurn.value !== board.value[key].player) return feedback.value = 'wait for the opponent to take a move'
 
     return selectedStone.value = key
   }
@@ -171,7 +174,7 @@ const select = (key) => {
   if (key === selectedStone.value) return selectedStone.value = null
 
   // one direction permitted
-  if (whosTurn.value === 1 ? key > selectedStone.value : key < selectedStone.value) return console.warn(`You're going into the wrong direction`)
+  if (whosTurn.value === 1 ? key > selectedStone.value : key < selectedStone.value) return feedback.value = `you're going into the wrong direction`
 
   // should the player attack
   const attack = possibleAttacks(selectedStone.value)
@@ -179,7 +182,7 @@ const select = (key) => {
   if (attack.length) {
     const isAttacking = attack.filter(a => a.dest === key)[0]
     
-    if (!isAttacking) return console.warn('Player must attack!')
+    if (!isAttacking) return feedback.value = 'You must attack!'
 
     move(selectedStone.value, key)
     remove(isAttacking.attacking)
@@ -190,7 +193,7 @@ const select = (key) => {
   }
 
   // is new location taken?
-  if (board.value[key].player) return console.warn('cannot move stone on another stone')
+  if (board.value[key].player) return feedback.value = 'cannot move a stone on top of another stone'
 
   // check if simple move
   if (isSimpleMove(key)) {
@@ -203,23 +206,32 @@ const select = (key) => {
 
 </script>
 <template>
-  <div class="checkers-board">
-    <template v-for="(item, key) in boardLayout" :key="key">
-      <div v-if="item" class="checkers-board-item checkers-board-item--dark">
-        <span
-          :class="[
-            'stone',
-            `stone-${item.player}`,
-            item.location === selectedStone && 'selected'
-          ]"
-          @click="select(item.location)"
-        ></span>
-      </div>
-      <div v-else class="checkers-board-item"></div>
-    </template>
+  <div>
+    <div class="checkers-board">
+      <template v-for="(item, key) in boardLayout" :key="key">
+        <div v-if="item" class="checkers-board-item checkers-board-item--dark">
+          <span
+            :class="[
+              'stone',
+              `stone-${item.player}`,
+              item.location === selectedStone && 'selected'
+            ]"
+            @click="select(item.location)"
+          ></span>
+        </div>
+        <div v-else class="checkers-board-item"></div>
+      </template>
+    </div>
+    <pre v-if="feedback" class="feedback-box">Feedback; {{ feedback }}</pre>
   </div>
 </template>
 <style lang="scss">
+
+.feedback-box {
+  color: darkred;
+  font-size: 2em;
+  padding: 1em;
+}
 
 .checkers-board {
   height: 90vh;
@@ -227,20 +239,20 @@ const select = (key) => {
   max-height: 90vw;
   max-width: 90vw;
   background: rgb(58, 29, 13);
-  padding: 10px;
-  border-radius: 3px;
+  padding: 5vh;
+  border-radius: 11px;
 
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
   &-item {
       background: white;
-      border: 1px solid black;
+      border: 1px solid rgb(58, 29, 13);
       display: flex;
       align-items: center;
       justify-content: center;
     &--dark {
-      background: rgb(74, 38, 19);
+      background: #984f28;
       color: rgba(127, 127, 127, 0.207);
     }
     .stone {
@@ -252,11 +264,14 @@ const select = (key) => {
       width: 70%;
       &-1 {
         background: rgb(30, 35, 20);
+        background-image: linear-gradient(to top right, rgb(30, 35, 20), rgb(62, 65, 55));
         border: 3px solid black;
         color: rgba(255,255,255,0.15);
       }
       &-2 {
         background: rgb(220, 220, 220);
+
+        background-image: linear-gradient(to top right, rgb(210, 201, 201), rgb(220, 220, 220));
         border: 3px solid white;
         color: rgba(0,0,0,0.1);
       }
