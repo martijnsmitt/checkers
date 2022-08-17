@@ -17,7 +17,7 @@ const selectedStone = ref(null)
 const select = (key) => {
 
   // is it your turn?
-  if (player)
+  // if (player)
 
   // Validate if key is a number
   if (typeof key !== 'number') {
@@ -49,6 +49,11 @@ const select = (key) => {
     return
   }
 
+  // switch(key) {
+
+
+  // }
+
   // check if simple move
   // check if strike move
   move(selectedStone.value, key)
@@ -67,7 +72,7 @@ const select = (key) => {
             item.location === selectedStone && 'selected'
           ]"
           @click="select(item.location)"
-        >{{ item.label }}</span>
+        >{{ item.label }} ({{ item.location }})</span>
       </div>
       <div v-else class="checkers-board-item"></div>
     </template>
