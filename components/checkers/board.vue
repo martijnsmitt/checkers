@@ -131,9 +131,7 @@ const possibleAttacks = (key) => {
       possibilities = [ attackTopRight(key, type), attackBottomRight(key, type) ]
       break;
     case 'E':
-      console.log('E')
       possibilities = [ attackTopLeft(key, type), attackTopRight(key, type), attackBottomRight(key, type), attackBottomLeft(key, type) ]
-      console.log(possibilities)
       break;
     case 'F':
       possibilities = [ attackTopLeft(key, type), attackBottomLeft(key, type) ]
@@ -177,7 +175,7 @@ const select = (key) => {
 
   // should the player attack
   const attack = possibleAttacks(selectedStone.value)
-  console.log({ attack })
+
   if (attack.length) {
     const isAttacking = attack.filter(a => a.dest === key)[0]
     
@@ -215,18 +213,22 @@ const select = (key) => {
             item.location === selectedStone && 'selected'
           ]"
           @click="select(item.location)"
-        >{{ item.location }}</span>
+        ></span>
       </div>
       <div v-else class="checkers-board-item"></div>
     </template>
   </div>
 </template>
 <style lang="scss">
+
 .checkers-board {
-  height: 1000px;
-  width: 1000px;
-  background: orange;
+  height: 90vh;
+  width: 90vh;
+  max-height: 90vw;
+  max-width: 90vw;
+  background: rgb(58, 29, 13);
   padding: 10px;
+  border-radius: 3px;
 
   display: grid;
   grid-template-columns: repeat(10, 1fr);
@@ -239,7 +241,7 @@ const select = (key) => {
       justify-content: center;
     &--dark {
       background: rgb(74, 38, 19);
-      color: rgb(127, 127, 127);
+      color: rgba(127, 127, 127, 0.207);
     }
     .stone {
       align-items: center;
@@ -251,12 +253,12 @@ const select = (key) => {
       &-1 {
         background: rgb(30, 35, 20);
         border: 3px solid black;
-        color: rgba(255,255,255,0.8);
+        color: rgba(255,255,255,0.15);
       }
       &-2 {
         background: rgb(220, 220, 220);
         border: 3px solid white;
-        color: rgba(0,0,0,0.6);
+        color: rgba(0,0,0,0.1);
       }
       &.selected {
         // -webkit-box-shadow: 5px 5px 5px green;

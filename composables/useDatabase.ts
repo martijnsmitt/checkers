@@ -89,11 +89,21 @@ export const useDatabase = () => {
     })
   }
 
+  const reset = () => {
+    $fetch('/api/sync', {
+      method: 'POST',
+      body: {
+        reset: true
+      }
+    })
+  }
+
   return {
     board,
     boardLayout,
     playerA,
     playerB,
+    reset,
     sync,
     turns,
   }

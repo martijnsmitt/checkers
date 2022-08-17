@@ -143,9 +143,12 @@ app.get('/sync', (req, res) => {
 })
 
 app.post('/sync', (req, res, next) => {
-  const newInfo = req.body
-
+  let newInfo = req.body
   res.json(newInfo)
+
+  if (newInfo.reset) {
+    newInfo = defaultDatabase
+  }
 
   clients.forEach(client => client.response.write(`data: ${JSON.stringify(newInfo)}\n\n`))
 

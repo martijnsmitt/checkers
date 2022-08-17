@@ -1,8 +1,8 @@
 <script setup>
-  const label = ref('PLAYER-ACTIONS')
+const { reset } = useDatabase()
 </script>
 <template>
   <div>
-    {{ label }}
+    <button @click="reset()">RESET game</button>
   </div>
 </template>
