@@ -21,18 +21,6 @@ const move = (oldLocation, newLocation) => {
 const remove = (location) => board.value[location].player = 0
 
 const isSimpleMove = (key) => {
-
-  // All types = +5 || -5
-  // Type A not first = +4 || -6
-  // Type B not last = -4 || +6
-
-  // console.log({
-  //   selected: key,
-  //   column: (key % 5 || 5),
-  //   row: Math.ceil((key) / 5),
-  //   typeA: Math.ceil((key) / 5) % 2
-  // })
-
   const old = selectedStone.value
 
   if (key === (old + 5) || key === (old - 5)) {
@@ -54,44 +42,6 @@ const isSimpleMove = (key) => {
   return false
 }
 
-// Area's on board with different rules
-// -----------------
-// | A |   B   | C |
-// -----------------
-// |   |       |   |
-// | D |   E   | F |
-// |   |       |   |
-// -----------------
-// | G |   H   | I |
-// -----------------
-const getArea = (key, row, column) => {
-  if (row >= 9) {
-    if (column === 1) {
-      return 'A'
-    } else if (column <= 4) {
-      return 'B'
-    } else {
-      return 'C'
-    }
-  } else if (row >= 3) {
-    if (column === 1) {
-      return 'D'
-    } else if (column <= 4) {
-      return 'E'
-    } else {
-      return 'F'
-    }
-  } else {
-    if (column === 1) {
-      return 'G'
-    } else if (column <= 4) {
-      return 'H'
-    } else {
-      return 'I'
-    }
-  }
-}
-
 const testAttack = (key, attacking, dest) => {
   // within reach of board
   if (dest > 50 || dest <= 0) return
@@ -105,7 +55,7 @@ const testAttack = (key, attacking, dest) => {
   // are you attacking yourself
   if (board.value[attacking].player === board.value[key].player) return
 
-  // you must attack!
+  // if else you must attack!
   return { key, attacking, dest }
 }
 
@@ -120,37 +70,33 @@ const possibleAttacks = (key) => {
   const type = row % 2
   let possibilities = []
 
-  switch(getArea(key, row, column)) {
-    case 'A':
+  if (row >= 9) {
+    if (column === 1) {
       possibilities = [ attackBottomRight(key, type) ]
-      break;
-    case 'B':
+    } else if (column <= 4) {
       possibilities = [ attackBottomRight(key, type), attackBottomLeft(key, type) ]
-      break;
-    case 'C':
+    } else {
       possibilities = [ attackBottomLeft(key, type) ]
-      break;
-    case 'D':
+    }
+  } else if (row >= 3) {
+    if (column === 1) {
       possibilities = [ attackTopRight(key, type), attackBottomRight(key, type) ]
-      break;
-    case 'E':
+    } else if (column <= 4) {
       possibilities = [ attackTopLeft(key, type), attackTopRight(key, type), attackBottomRight(key, type), attackBottomLeft(key, type) ]
-      break;
-    case 'F':
+    } else {
       possibilities = [ attackTopLeft(key, type), attackBottomLeft(key, type) ]
-      break;
-    case 'G':
+    }
+  } else {
+    if (column === 1) {
       possibilities = [ attackTopRight(key, type) ]
-      break;
-    case 'H':
+    } else if (column <= 4) {
       possibilities = [ attackTopLeft(key, type), attackTopRight(key, type) ]
-      break;
-    case 'I':
+    } else {
       possibilities = [ attackTopLeft(key, type) ]
-      break;
+    }
   }
 
-  return possibilities.filter(e => e && (whosTurn.value === 1 ? e.dest < e.key : e.dest > e.key))
+  return possibilities.filter(e => e)
 }
 
 const selectedStone = ref(null)
@@ -176,9 +122,6 @@ const select = (key) => {
   // change selection
   if (board.value[key].player === whosTurn.value) return selectedStone.value = key
 
-  // one direction permitted
-  if (whosTurn.value === 1 ? key > selectedStone.value : key < selectedStone.value) return feedback.value = `you're going into the wrong direction`
-
   // should the player attack
   const attack = possibleAttacks(selectedStone.value)
 
@@ -190,7 +133,7 @@ const select = (key) => {
     move(selectedStone.value, key)
     remove(isAttacking.attacking)
     // return without finishing turn, because more options are available
-    if (possibleAttacks(selectedStone.value).length) return
+    if (possibleAttacks(key).length) return
     // else finish turn
     return finishTurn()
   }
@@ -198,15 +141,15 @@ const select = (key) => {
   // is there a stone that is able to attack
   const allPossibleAttacks = ref([])
   Object.entries(board.value).filter(item => item[1].player === whosTurn.value).forEach(item => {
-    // allPossibleAttacks.value = [
-    //   ...allPossibleAttacks.value,
-    //   ...possibleAttacks(parseInt(item[0]))
-    // ]
+    
     allPossibleAttacks.value.push(...possibleAttacks(parseInt(item[0])))
   })
 
 
   if (allPossibleAttacks.value.length) return feedback.value = 'You must attack'
+
+  // one direction permitted
+  if (whosTurn.value === 1 ? key > selectedStone.value : key < selectedStone.value) return feedback.value = `you're going into the wrong direction`
 
   // is new location taken?
   if (board.value[key].player) return feedback.value = 'cannot move a stone on top of another stone'
