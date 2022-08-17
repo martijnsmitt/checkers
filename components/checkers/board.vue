@@ -195,6 +195,19 @@ const select = (key) => {
     return finishTurn()
   }
 
+  // is there a stone that is able to attack
+  const allPossibleAttacks = ref([])
+  Object.entries(board.value).filter(item => item[1].player === whosTurn.value).forEach(item => {
+    // allPossibleAttacks.value = [
+    //   ...allPossibleAttacks.value,
+    //   ...possibleAttacks(parseInt(item[0]))
+    // ]
+    allPossibleAttacks.value.push(...possibleAttacks(parseInt(item[0])))
+  })
+
+
+  if (allPossibleAttacks.value.length) return feedback.value = 'You must attack'
+
   // is new location taken?
   if (board.value[key].player) return feedback.value = 'cannot move a stone on top of another stone'
 
