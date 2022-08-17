@@ -11,6 +11,43 @@ const move = (oldLocation, newLocation) => {
   sync()
 }
 
+const isSimpleMove = (key) => {
+
+  // All types = +5 || -5
+  // Type A not first = +4 || -6
+  // Type B not last = -4 || +6
+
+  // console.log({
+  //   selected: key,
+  //   column: (key % 5 || 5),
+  //   row: Math.ceil((key) / 5),
+  //   typeA: Math.ceil((key) / 5) % 2
+  // })
+
+  const old = selectedStone.value
+
+  if (key === (old + 5) || key === (old - 5)) {
+    console.log('YES A')
+    return true
+  }
+
+  // begins with brown
+  if (Math.ceil((old) / 5) % 2) {
+    // not first
+    if (old % 5 !== 1 && (key === (old + 4) || key === (old - 6))) {
+      console.log('YES B')
+      return true
+    }
+  } else {
+    // not last
+    if (old % 5 !== 0 && (key === (old + 6) || key === (old - 4))) {
+      return true
+    }
+  }
+  console.log('false')
+  return false
+}
+
 
 const selectedStone = ref(null)
 
@@ -31,9 +68,13 @@ const select = (key) => {
   }
 
   // Select a stone
-  if (typeof selectedStone.value !== 'number' && board.value[key].player) {
-    selectedStone.value = key
-    console.log('selected: ', key)
+  if (typeof selectedStone.value !== 'number'){
+    if (board.value[key].player) {
+      selectedStone.value = key
+      console.log('selected: ', key)
+    } else {
+      console.warn('select a stone first')
+    }
     return
   }
 
@@ -49,14 +90,15 @@ const select = (key) => {
     return
   }
 
-  // switch(key) {
-
-
-  // }
-
   // check if simple move
-  // check if strike move
-  move(selectedStone.value, key)
+  if (isSimpleMove(key)) {
+    move(selectedStone.value, key)
+    return
+  }
+
+
+// check if strike move
+  // move(selectedStone.value, key)
   console.log('TO-DO: ',key)
 }
 
@@ -72,7 +114,7 @@ const select = (key) => {
             item.location === selectedStone && 'selected'
           ]"
           @click="select(item.location)"
-        >{{ item.label }} ({{ item.location }})</span>
+        >{{ item.location }}</span>
       </div>
       <div v-else class="checkers-board-item"></div>
     </template>
