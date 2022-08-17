@@ -9,7 +9,7 @@
   <div>
     <p>Turns counter: {{ turns }}</p>
     <p> It is {{ whosTurn }} turn to play</p>
-    <p>{{ playerA.name }} ({{ playerA.id }}) has {{ piecesLeftPlayerA }} pieces left</p>
-    <p>{{ playerB.name }} ({{ playerB.id }}) has {{ piecesLeftPlayerB }} pieces left</p>
+    <p>{{ playerA.name }} (black) has {{ piecesLeftPlayerA }} pieces left</p>
+    <p>{{ playerB.name }} (white) has {{ piecesLeftPlayerB }} pieces left</p>
   </div>
 </template>

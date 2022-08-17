@@ -1,7 +1,7 @@
 <script setup>
 const { board, boardLayout, playerA, playerB, sync, turns } = useDatabase()
 
-const currentPlayer = playerA
+const whosTurn = computed(() => turns.value % 2 ? playerB.id : playerA.id)
 
 const finishTurn = () => {
   // @TO-DO: check if new location should give a double stone
@@ -115,85 +115,84 @@ const possibleAttacks = (key) => {
   const column = (key % 5 || 5)
   const row = Math.ceil((key) / 5)
   const type = row % 2
+  let possibilities = []
 
   switch(getArea(key, row, column)) {
     case 'A':
-      return [ attackBottomRight(key, type) ]
+      possibilities = [ attackBottomRight(key, type) ]
+      break;
     case 'B':
-      return [ attackBottomRight(key, type), attackBottomLeft(key, type) ]
+      possibilities = [ attackBottomRight(key, type), attackBottomLeft(key, type) ]
+      break;
     case 'C':
-      return [ attackBottomLeft(key, type) ]
+      possibilities = [ attackBottomLeft(key, type) ]
+      break;
     case 'D':
-      return [ attackTopRight(key, type), attackBottomRight(key, type) ]
+      possibilities = [ attackTopRight(key, type), attackBottomRight(key, type) ]
+      break;
     case 'E':
-      return [ attackTopLeft(key, type), attackTopRight(key, type), attackBottomRight(key, type), attackBottomLeft(key, type) ]
+      console.log('E')
+      possibilities = [ attackTopLeft(key, type), attackTopRight(key, type), attackBottomRight(key, type), attackBottomLeft(key, type) ]
+      console.log(possibilities)
+      break;
     case 'F':
-      return [ attackTopLeft(key, type), attackBottomLeft(key, type) ]
+      possibilities = [ attackTopLeft(key, type), attackBottomLeft(key, type) ]
+      break;
     case 'G':
-      return [ attackTopRight(key, type) ]
+      possibilities = [ attackTopRight(key, type) ]
+      break;
     case 'H':
-      return [ attackTopLeft(key, type), attackTopRight(key, type) ]
+      possibilities = [ attackTopLeft(key, type), attackTopRight(key, type) ]
+      break;
     case 'I':
-      return [ attackTopLeft(key, type) ]
+      possibilities = [ attackTopLeft(key, type) ]
+      break;
   }
-  console.error(`switch with area's should be triggered`)
-  return 
+
+  return possibilities.filter(e => e && (whosTurn.value === 1 ? e.dest < e.key : e.dest > e.key))
 }
 
 const selectedStone = ref(null)
 
 const select = (key) => {
-  // is it your turn?
-  // if (player)
-
   // Validate if key is a number
-  if (typeof key !== 'number') {
-    console.error('selected stone is not a key', key)
-    return
-  }
+  if (typeof key !== 'number') return console.error('selected stone is not a key', key)
+
   // Check if key exists on board
-  if (!(key in board.value)) {
-    console.error('key doesnt exist on board', key)
-    return
-  }
+  if (!(key in board.value)) return console.error('key doesnt exist on board', key)
 
   // Select a stone
   if (typeof selectedStone.value !== 'number'){
-    if (board.value[key].player) {
-      selectedStone.value = key
-      console.log('selected: ', key)
-    } else {
-      console.warn('select a stone first')
-    }
-    return
+    if (!board.value[key].player) return console.warn('select a stone first')
+    if (whosTurn.value !== board.value[key].player) return console.warn(`It's not your turn!`)
+
+    return selectedStone.value = key
   }
 
   // reset selection
-  if (key === selectedStone.value) {
-    selectedStone.value = null
-    return
-  }
+  if (key === selectedStone.value) return selectedStone.value = null
+
+  // one direction permitted
+  if (whosTurn.value === 1 ? key > selectedStone.value : key < selectedStone.value) return console.warn(`You're going into the wrong direction`)
 
   // should the player attack
-  const attack = possibleAttacks(selectedStone.value).filter(e => e)
+  const attack = possibleAttacks(selectedStone.value)
+  console.log({ attack })
   if (attack.length) {
-    console.log({ attack })
     const isAttacking = attack.filter(a => a.dest === key)[0]
-    if (!isAttacking) {
-      console.warn('Player must attack!')
-      return
-    }
-    console.log({isAttacking})
+    
+    if (!isAttacking) return console.warn('Player must attack!')
+
     move(selectedStone.value, key)
     remove(isAttacking.attacking)
+    // return without finishing turn, because more options are available
+    if (possibleAttacks(selectedStone.value).length) return
+    // else finish turn
     return finishTurn()
   }
 
   // is new location taken?
-  if (board.value[key].player) {
-    console.warn('cannot move stone on another stone')
-    return
-  }
+  if (board.value[key].player) return console.warn('cannot move stone on another stone')
 
   // check if simple move
   if (isSimpleMove(key)) {
