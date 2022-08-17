@@ -173,6 +173,9 @@ const select = (key) => {
   // reset selection
   if (key === selectedStone.value) return selectedStone.value = null
 
+  // change selection
+  if (board.value[key].player === whosTurn.value) return selectedStone.value = key
+
   // one direction permitted
   if (whosTurn.value === 1 ? key > selectedStone.value : key < selectedStone.value) return feedback.value = `you're going into the wrong direction`
 
