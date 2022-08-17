@@ -54,17 +54,17 @@ export const useDatabase = () => {
       // update board
       if (messageBag.board) {
         board.value = messageBag.board
-        console.log('new board!')
+
       }
 
       // update player A name
       if (messageBag.playerA) {
-        playerA.name = messageBag.playerA
+        playerA.name = messageBag.playerA.name
       }
 
       // update player B name
       if (messageBag.playerB) {
-        playerB.name = messageBag.playerB
+        playerB.name = messageBag.playerB.name
       }
       
       // update turns

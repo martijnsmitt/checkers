@@ -8,6 +8,7 @@ const move = (oldLocation, newLocation) => {
   board.value[oldLocation].player = 0
   selectedStone.value = null
   // check if new location should give a double stone
+  turns.value++
   sync()
 }
 
@@ -27,7 +28,6 @@ const isSimpleMove = (key) => {
   const old = selectedStone.value
 
   if (key === (old + 5) || key === (old - 5)) {
-    console.log('YES A')
     return true
   }
 
@@ -35,7 +35,6 @@ const isSimpleMove = (key) => {
   if (Math.ceil((old) / 5) % 2) {
     // not first
     if (old % 5 !== 1 && (key === (old + 4) || key === (old - 6))) {
-      console.log('YES B')
       return true
     }
   } else {
@@ -44,10 +43,8 @@ const isSimpleMove = (key) => {
       return true
     }
   }
-  console.log('false')
   return false
 }
-
 
 const selectedStone = ref(null)
 

@@ -9,11 +9,11 @@ const welcomeMessage = { log: 'Welcome! Api is running and connected' }
 const defaultDatabase = {
   turn: 0,
   playerA: {
-    name: ''
+    name: 'Player A'
     // actions: []
   },
   playerB: {
-    name: ''
+    name: 'Player B'
     // actions: []
   },
   board: {
